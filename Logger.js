@@ -6,12 +6,12 @@
  * @requires /common/modules/data/GlobalConsts
  * @requires /common/modules/AddonSettings
  */
-import {MESSAGE_LEVEL} from "/common/modules/data/MessageLevel.js";
-import {ADDON_NAME_SHORT} from "/common/modules/data/GlobalConsts.js";
+import { MESSAGE_LEVEL } from "../data/MessageLevel.js";
+import { ADDON_NAME_SHORT } from "../data/GlobalConsts.js";
 
-import * as AddonSettings from "/common/modules/AddonSettings/AddonSettings.js";
+import * as AddonSettings from "../AddonSettings/AddonSettings.js";
 
-import isPlainObject from "/common/modules/lib/lodash/isPlainObject.js";
+import isPlainObject from "../lodash/isPlainObject.js";
 
 let debugMode = null;
 

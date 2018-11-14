@@ -1,0 +1,24 @@
+{
+  "manifest_version": 2,
+  "name": "TinyWebEx Logger library dev example",
+  "short_name": "TinyWebEx Logger",
+  "version": "1.0",
+  "author": "rugk",
+
+  "description": "Console logging module that mnakes logging easier and adjustable.",
+  "homepage_url": "https://github.com/TinyWebEx/Logger",
+
+  // only for the unit test, we need to load libraries from CDNs
+  "content_security_policy": "default-src 'none'; style-src 'self' https://unpkg.com; script-src 'self' https://unpkg.com",
+
+  "permissions": [
+    // because it requires AddonSettings
+    "storage"
+  ],
+  "applications": {
+    "gecko": {
+      // minimum version, because of module system
+      "strict_min_version": "60.0a1"
+    }
+  }
+}
