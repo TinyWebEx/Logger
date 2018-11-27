@@ -8,9 +8,9 @@ import {MESSAGE_LEVEL} from "../../data/MessageLevel.js";
 import * as Logger from "../Logger.js";
 
 const LOG_PREFIX = Object.freeze({
-    INFO: "Offline QR code [INFO]",
-    WARN: "Offline QR code [WARN]",
-    ERROR: "Offline QR code [ERROR]"
+    INFO: sinon.match(/\[INFO\]$/),
+    WARN: sinon.match(/\[WARN\]$/),
+    ERROR: sinon.match(/\[ERROR\]$/)
 });
 
 describe("common module: Logger", function () {
