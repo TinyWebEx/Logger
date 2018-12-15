@@ -10,6 +10,7 @@ import { MESSAGE_LEVEL } from "../data/MessageLevel.js";
 import { ADDON_NAME_SHORT } from "../data/GlobalConsts.js";
 
 import * as AddonSettings from "../AddonSettings/AddonSettings.js";
+import * as RealConsole from "./internal/RealConsole.js";
 
 import isPlainObject from "../lodash/isPlainObject.js";
 
@@ -66,13 +67,13 @@ export function log(...args) {
     /* eslint-disable no-console */
     switch (messagetype) {
     case MESSAGE_LEVEL.ERROR:
-        console.error(...args);
+        RealConsole.error(...args);
         break;
     case MESSAGE_LEVEL.WARN:
-        console.warn(...args);
+        RealConsole.warn(...args);
         break;
     default:
-        console.log(...args);
+        RealConsole.log(...args);
     }
     /* eslint-enable no-console */
 }
@@ -145,6 +146,8 @@ export function setDebugMode(isDebug) {
  * @returns {Promise}
  */
 export function init() {
+    RealConsole.setToDefaults();
+
     return AddonSettings.get("debugMode").then((isDebug) => {
         setDebugMode(isDebug);
     });

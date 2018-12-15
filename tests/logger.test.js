@@ -6,6 +6,7 @@ import * as AddonSettingsStub from "../../AddonSettings/tests/helper/AddonSettin
 
 import {MESSAGE_LEVEL} from "../../data/MessageLevel.js";
 import * as Logger from "../Logger.js";
+import * as RealConsole from "../internal/RealConsole.js";
 
 const LOG_PREFIX = Object.freeze({
     INFO: sinon.match(/\[INFO\]$/),
@@ -27,15 +28,14 @@ describe("common module: Logger", function () {
      *
      * @private
      * @function
-     * @param {function} consoleMock ocalizedValues
-     * @returns {Promise}
+     * @param {function} mockConsole the sinon mock of the window.console object
+     * @param {function} consoleMockTest the test to run for the mock
+     * @returns {void}
      */
-    function testDebugModeSetting(consoleMock) {
+    function testDebugModeSetting(mockConsole, consoleMockTest) {
         const logMessage = Symbol("log message");
 
-        const mockConsole = sinon.mock(console);
-
-        consoleMock(mockConsole, logMessage);
+        consoleMockTest(mockConsole, logMessage);
 
         Logger.logInfo(logMessage);
 
@@ -46,21 +46,24 @@ describe("common module: Logger", function () {
      * Verify the debug mode is enabled.
      *
      * @function
+     * @param {function} mockConsole the sinon mock of the window.console object
+     * @param {any} logMessage the log message I am expected to see
      * @returns {Promise}
      */
-    function testDebugModeEnabled() {
-        return testDebugModeSetting((mockConsole, logMessage) => mockConsole.expects("log").once().withExactArgs(LOG_PREFIX.INFO, logMessage));
+    function expectDebugModeEnabled(mockConsole, logMessage) {
+        mockConsole.expects("log").once().withExactArgs(LOG_PREFIX.INFO, logMessage);
     }
 
     /**
      * Verify the debug mode is disabled.
      *
      * @function
+     * @param {function} mockConsole the sinon mock of the window.console object
      * @returns {Promise}
      */
-    function testDebugModeDisabled() {
+    function expectDebugModeDisabled(mockConsole) {
         // should never call console.log()
-        return testDebugModeSetting((mockConsole) => mockConsole.expects("log").never());
+        mockConsole.expects("log").never();
     }
 
     /**
@@ -72,7 +75,7 @@ describe("common module: Logger", function () {
      * @param {function} testFunction the function under test, get's passed the log message
      * @returns {Promise}
      */
-    function testLogIsCalled(prefixName, testFunction) {
+    async function testLogIsCalled(prefixName, testFunction) {
         let consoleMethod = prefixName.toLowerCase();
         if (consoleMethod === "info") {
             consoleMethod = "log";
@@ -84,6 +87,7 @@ describe("common module: Logger", function () {
         mockConsole.expects(consoleMethod)
             .once().withExactArgs(LOG_PREFIX[prefixName], logMessage);
 
+        await RealConsole.setToDefaults(); // to apply mock/stub
         testFunction(logMessage);
 
         mockConsole.verify();
@@ -108,9 +112,15 @@ describe("common module: Logger", function () {
                 "debugMode": false
             });
 
+            const mockConsole = sinon.mock(console);
+
+            // load setting
             await Logger.init();
 
-            return testDebugModeDisabled();
+            return testDebugModeSetting(mockConsole, async (...args) => {
+                expectDebugModeDisabled(...args);
+                await RealConsole.setToDefaults(); // to apply mock/stub
+            });
         });
 
         it("loads debugMode setting if enabled", async function () {
@@ -118,9 +128,15 @@ describe("common module: Logger", function () {
                 "debugMode": true
             });
 
+            const mockConsole = sinon.mock(console);
+
+            // load setting
             await Logger.init();
 
-            return testDebugModeEnabled();
+            return testDebugModeSetting(mockConsole, async (...args) => {
+                expectDebugModeEnabled(...args);
+                await RealConsole.setToDefaults(); // to apply mock/stub
+            });
         });
     });
 
@@ -128,13 +144,23 @@ describe("common module: Logger", function () {
         it("correctly sets debug mode to enabled", function () {
             Logger.setDebugMode(true);
 
-            return testDebugModeEnabled();
+            const mockConsole = sinon.mock(console);
+
+            return testDebugModeSetting(mockConsole, async (...args) => {
+                expectDebugModeEnabled(...args);
+                await RealConsole.setToDefaults(); // to apply mock/stub
+            });
         });
 
         it("correctly sets debug mode to disabled", function () {
             Logger.setDebugMode(false);
 
-            return testDebugModeDisabled();
+            const mockConsole = sinon.mock(console);
+
+            return testDebugModeSetting(mockConsole, async (...args) => {
+                expectDebugModeDisabled(...args);
+                await RealConsole.setToDefaults(); // to apply mock/stub
+            });
         });
     });
 
@@ -152,7 +178,7 @@ describe("common module: Logger", function () {
      * @returns {Promise}
      */
     function testlogObject(logMethod, logFunctionCall) {
-        it("logs multiple objects", function () {
+        it("logs multiple objects", async function () {
             const param1 = Symbol("start log message");
             const param2 = "a great string";
             const param3 = {
@@ -165,13 +191,14 @@ describe("common module: Logger", function () {
             mockConsole.expects(logMethod)
                 .once().withExactArgs(sinon.match.any, param1, param2, param3);
 
+            await RealConsole.setToDefaults(); // to apply mock/stub
             // test function
             logFunctionCall(param1, param2, param3);
 
             mockConsole.verify();
         });
 
-        it("correctly freezes objects", function () {
+        it("correctly freezes objects", async function () {
             const logMessageExpected = {
                 and: "an object, because we like",
                 integers: 123
@@ -182,6 +209,7 @@ describe("common module: Logger", function () {
             // copy object (we do not test with nested objects here, so Object.assign doing a shallow copy is fine)
             const logMessageModify = Object.assign({}, logMessageExpected);
 
+            await RealConsole.setToDefaults(); // to apply mock/stub
             logFunctionCall(logMessageModify);
 
             // modify object
@@ -197,13 +225,14 @@ describe("common module: Logger", function () {
     }
 
     describe("log()", function () {
-        it("logs, if called without params", function () {
-            const mockConsole = sinon.mock(console);
+        it("logs, if called without params", async function () {
+            const mockConsole = sinon.mock(window.console);
 
             mockConsole.expects("error")
                 .once().withExactArgs(LOG_PREFIX.ERROR, "log has been called without parameters");
 
             // test function
+            await RealConsole.setToDefaults(); // to apply mock/stub
             Logger.log();
 
             mockConsole.verify();
@@ -214,18 +243,27 @@ describe("common module: Logger", function () {
         it("still logs info, if debug mode is not yet loaded", function () {
             Logger.setDebugMode(true);
 
+            const mockConsole = sinon.mock(console);
+
             // note it is not explicitly enabled, but internally set to "null"
-            return testDebugModeEnabled();
+            return testDebugModeSetting(mockConsole, async (...args) => {
+                expectDebugModeEnabled(...args);
+                await RealConsole.setToDefaults(); // to apply mock/stub
+            });
         });
 
         it("uses correct prefix for different error levels", function () {
             Logger.setDebugMode(true);
 
+            const allPromises = [];
             for (const prefixName of Object.keys(LOG_PREFIX)) {
-                testLogIsCalled(prefixName, (logMessage) => {
+                const promise = testLogIsCalled(prefixName, (logMessage) => {
                     Logger.log(MESSAGE_LEVEL[prefixName], logMessage);
                 });
+                allPromises.push(promise);
             }
+
+            return Promise.all(allPromises);
         });
     });
 
@@ -233,7 +271,7 @@ describe("common module: Logger", function () {
         it("calls .log(MESSAGE_LEVEL.INFO)", function () {
             Logger.setDebugMode(true);
 
-            testLogIsCalled("INFO", (logMessage) => {
+            return testLogIsCalled("INFO", (logMessage) => {
                 Logger.logInfo(logMessage);
             });
         });
@@ -243,7 +281,7 @@ describe("common module: Logger", function () {
 
     describe("logWarn()", function () {
         it("calls .log(MESSAGE_LEVEL.WARN)", function () {
-            testLogIsCalled("WARN", (logMessage) => {
+            return testLogIsCalled("WARN", (logMessage) => {
                 Logger.logWarning(logMessage);
             });
         });
@@ -253,7 +291,7 @@ describe("common module: Logger", function () {
 
     describe("logError()", function () {
         it("calls .log(MESSAGE_LEVEL.ERROR)", function () {
-            testLogIsCalled("ERROR", (logMessage) => {
+            return testLogIsCalled("ERROR", (logMessage) => {
                 Logger.logError(logMessage);
             });
         });
