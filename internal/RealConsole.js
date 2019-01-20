@@ -1,6 +1,8 @@
 /**
  * Wraps the "real" console.log/info etc values.
  *
+ * @protected
+ * @module Logger/RealConsole
  */
 
 /**

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="utf-8">
+    <title>Home - Documentation</title>
+    
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav >
+    
+    <input type="text" id="nav-search" placeholder="Search" />
+    
+    <h2><a href="index.html">Home</a></h2><h2><a href="https://github.com/TinyWebEx/" >All TinyWebExt modules</a></h2><h3>Modules</h3><ul><li><a href="module-Logger.html">Logger</a><ul class='methods'><li data-type='method'><a href="module-Logger.html#.init">init</a></li><li data-type='method'><a href="module-Logger.html#.log">log</a></li><li data-type='method'><a href="module-Logger.html#.logError">logError</a></li><li data-type='method'><a href="module-Logger.html#.logInfo">logInfo</a></li><li data-type='method'><a href="module-Logger.html#.logWarning">logWarning</a></li><li data-type='method'><a href="module-Logger.html#.setDebugMode">setDebugMode</a></li></ul></li></ul>
+</nav>
+
+<div id="main">
+    
+
+    
+
+
+
+    
+
+
+    <section class="readme">
+        <article><h1 id="tinywebex-logger">TinyWebEx Logger</h1>
+<p>Console logging module that makes logging easier and adjustable.</p>
+<h2 id="features">Features</h2>
+<ul>
+<li><a href="#using-with-console-log">continue using <code>console.log</code> or others</a>, but prettify and enhance log messages</li>
+<li>prepends messages with an indentifier for your add-on, so you know which of your (installed) add-ons is emitting the message in the debugger</li>
+<li><a href="#addon-settings">allows users to enable/disable debug logging</a></li>
+</ul>
+<h2 id="setup">Setup</h2>
+<p>This module does require two files in the <code>data</code> dir, located in the parent directory of this module, i.e. this is the files tree that is required:</p>
+<pre class="prettyprint source"><code>.
+├── Logger
+│   ├── Logger.js
+│   ├── CONTRIBUTORS
+│   ├── LICENSE.md
+│   ├── README.md
+│   └── ...
+├── data
+│   ├── MessageLevel.js
+│   ├── GlobalConsts.js
+│   └── ...
+...</code></pre><p>The file <code>GlobalConsts.js</code> needs to export the constant <code>ADDON_NAME_SHORT</code>, which specifies the addon name to prepend log messages with. You can find an example file in <a href="examples/GlobalConsts.js"><code>examples/GlobalConsts.js</code></a>.</p>
+<h2 id="using-with-console-log">Using with console.log</h2>
+<p>If you want the Logger module to overwrite the usual <code>console.log</code>, <code>console.error</code> etc. functions, you can include the <code>OverwriteConsoleLog</code> module. The advantage of this is, that other modules do not have to depend on this one then, but can just call <code>console</code> functions correctly and fall back to &quot;normal&quot; browser console logging.</p>
+<p>It is recommend to load this script asynchronously (via the <a href="https://developer.mozilla.org/docs/Web/HTML/Element/script#attr-async">async keyword</a>) and directly in the head as your first script, so the new logging mechanism is used right from the beginning.</p>
+<pre class="prettyprint source lang-html"><code>&lt;head>
+    &lt;!-- […] -->
+    &lt;script type=&quot;module&quot; src=&quot;./Logger/OverwriteConsoleLog.js&quot; async>&lt;/script>
+&lt;/head></code></pre><h2 id="manually-calling-logger">Manually calling Logger</h2>
+<p>Alternatively, you can call the Logger manually via the <code>Logger.js</code> module. You have similar quick methods as you know from the <code>console</code> API, like <code>logInfo</code>, <code>logWarning</code>, etc.
+Additionally, you could use the <code>log</code> function and pass a <code>MESSAGE_LEVEL</code> as the first parameter.</p>
+<h2 id="addon-settings">Addon settings</h2>
+<p>The addon tries to load a setting called <code>debugMode</code> via <a href="https://github.com/TinyWebEx/AddonSettings">the TinyWebEx AddonSettings module</a>. This is a <em>boolean</em> setting you can expose on the options page to let the user adjust the setting.</p>
+<p>If it returns <code>true</code>, it enables &quot;debug logging&quot;, i.e. the &quot;info level&quot; logging (i.e. <code>logInfo</code>, respectively <code>console.log</code> and <code>console.debug</code>) are ignored and not logged.
+Only if set to <code>false</code> it ignores these log messages and does not log it. This is useful in production/if you do not want to log too many detailed messages.</p>
+<p><strong>Note:</strong> If the value is not specified (i.e. not loaded yet from the add-on settings, or manually set to <code>null</code> or <code>undefined</code>), the debug logging will be <em>enabled</em>! This prevents the loss of debug logging messages in case loading the add-on options via <code>AddonSettings</code> (and the internal storage APIs) takes longer than the first call to a debug/info log.</p>
+<h2 id="api-note">API note</h2>
+<p>Everything in the <code>internal</code> dir is considered to be an internal module/file and thus not be considered to be an API under <em>semantic versioning</em>. That means the API there can change at any time, do <em>not</em> import anything from there!</p></article>
+    </section>
+
+
+
+
+
+
+    
+    
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Sun Jan 20 2019 20:36:33 GMT+0100 (Mitteleuropäische Normalzeit) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+
+<script src="scripts/jquery-3.1.1.min.js"></script>
+
+<script src="scripts/search.js"></script>
+
+
+
+
+</body>
+</html>
