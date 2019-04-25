@@ -4,7 +4,7 @@ Console logging module that makes logging easier and adjustable.
 
 ## Features
 
-* [continue using `console.log` or others](#using-with-console-log), but prettify and enhance log messages
+* [continue using `console.log` or others](#using-with-consolelog), but prettify and enhance log messages
 * prepends messages with an indentifier for your add-on, so you know which of your (installed) add-ons is emitting the message in the debugger
 * [allows users to enable/disable debug logging](#addon-settings)
 
