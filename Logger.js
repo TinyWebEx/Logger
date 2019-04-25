@@ -32,6 +32,7 @@ const MESSAGE_LEVEL_NAME = Object.freeze({
  * @private
  * @param  {array} args
  * @returns {Object}
+ * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Console/log#Logging_objects}
  */
 function prepareObjectsForLogging(args) {
     for (const [index, value] of args.entries()) {
